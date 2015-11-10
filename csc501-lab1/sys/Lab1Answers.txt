@@ -1,0 +1,45 @@
+What are the advantages and disadvantages of each of the two scheduling policies and the original scheduling policy in XINU?
+
+Linux Scheduler
+
+Advantages:
+1. It requires less CPU processing time. This is because the process runs entire quantum time unless it is suspended. 
+2. The decsion making process is based on how many times the process has run in the past. This is useful in case of processes with same priority. 
+3. There is no starvation problem. 
+4. The duration of time the process runs is based on its prioirty. 
+      
+Disadvantages
+1. Computation overhead. 
+2. If the number of processes is big, the scheduler may use a notable amount of the processor time itself. Picking the next task to run requires iteration 
+   through all currently planned tasks, so the scheduler runs in O(n) time, where n is the number of the planned processes.
+
+Reference:
+1. http://en.wikipedia.org/wiki/O%28n%29_scheduler
+
+
+Multi Queue Scheduler
+
+Advantages:
+1. The scheduling policy is fair. 
+2. Boosts interactivity.
+
+Disadvantages:
+1. Large number of context switches. 
+2. Finding the next process involves a complexity of O(n).
+
+Original Scheduling Policy
+
+Advantages:
+1. Fast response time of rescheduling.
+2. Equal execution time for processes in the queue. 
+
+Disadvantages:
+1. Starvation problem, some processes in the normal queue may take a long time to get executed.
+
+References:
+http://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched-mlfq.pdf
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Anish Ramasekar
+#200060849
+aramase@ncsu.edu
