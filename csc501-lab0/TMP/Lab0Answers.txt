@@ -1,0 +1,122 @@
+1. Assuming the XINU text begins at address 0x0, draw a rough diagram of XINU's memory layout with addresses derived from your experimental measurements. 
+   Include the information you uncovered from running your version of printsegaddress() and printprocstks().
+
+Ans:		|--------|
+		|        |
+		|  free  |
+		| memory |
+		|        |
+		|--------| base [0x00fffffc]
+		|        |
+		| prnull | stack pointer[0x00ffff3c]
+		| stack  | stack limit  [0x00fff000]
+		|        |
+		|--------| base [0x00ffeff8]
+		|        |
+		|  main  | stack pointer[0x00ffdffc]
+		|  stack | stack limit  [0x00ffefa0]
+		|        |
+		|--------| 
+		|  heap  |
+		|--------| ebss [0x00010bf8]
+		|  bss   |
+		|--------| edata[0x0000a540]
+		|  data  | 
+		|--------| etext[0x00008a46]
+		|  text  | 
+		|--------| begin[0x00000000]
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. What is the difference in stack top address before and after calling printtos()? Draw a diagram to illustrate what are the contents of the items pushed 
+   into the stack between these two time points.
+ 
+
+Ans:	Before calling the process, Top of stack address is 0x00ffefc0 and after calling the process, Top of the stack address is 0x00ffefb8.
+
+			|        	  |
+			|-----------------| [0x00ffefc0]
+			| Return Address  |
+			|-----------------| 
+			|       ebp       | [0x00ffefb8]
+			|-----------------| 
+			|   0x00000000    | [0x00ffefb4]
+			|-----------------|
+			|   0x00000000    | [0x00ffefb0]
+			|-----------------|
+			|   0x00000000    | [0x00ffefac]
+			|-----------------|
+			|   0x00ffefac    | [0x00ffefa8]
+			|-----------------|
+			|   0x00000004    | [0x00ffefa4]
+			|-----------------|
+			|   0x000098bc    | [0x00ffefa0]
+			|-----------------|
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. Which byte order is adopted in the host machine that we are using? How did you find out?
+
+Ans:    The byte order used in the host machine is Little endian. I obtained this output by making use of the following test program:
+	short int a=0x0001;
+	char *p=(char *)(&a);
+	if(*p==0x00)
+	kprintf("\nBig Endian");
+	else
+	kprintf("\nLittle Endian");
+
+Reference: http://www.geeksforgeeks.org/little-and-big-endian-mystery/
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. Briefly describe the mov, push, pusha, pop, and popa instructions in the x86. 
+
+Ans:  Instructions in x86
+	mov:copies the data referred to by second operand into the location referred to by first operand.
+	push: Places operand on the top of the stack in memory.
+	pusha: Pushes the general purpose registers onto top of the stack.
+	pop: Removes the 4 byte data element from the top of hardware-supported stack. 
+	popa: Pops all the general purpose registers off the stack in reverse order.
+
+Reference: 1.http://www.cs.virginia.edu/~evans/cs216/guides/x86.html
+	   2.http://en.wikibooks.org/wiki/X86_Assembly/Other_Instructions
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. In a stack frame, local variables are stored below the top of the stack. In task 3, does your result show all the local variables declared in your 
+   printtos function? If not, can you explain that? (hint: try to disable the compiler optimization by specifing -O0 in your Makefile)
+
+Ans: On running task 3, all the variables declared in the function are not displayed. This is because the compiler optimizes the program
+     by putting all the local variables into the registers rather than putting it onto the stack. 
+     However this can be disabled by specifying -O0, after which the local variables will be pushed onto the stack and will be displayed. 
+     Disabling Compiler Optimization: CFLAGS	= -march=i586 -fno-builtin -c -Wall -O0 ${DEFS} ${INCLUDE}
+
+Output after disabling: Function [printtos()]
+
+			Before          [0x00ffefd0]:    0x00000000
+			After           [0x00ffefc8]:    0x00ffefec
+			Stack Entry [1] [0x00ffefc4]:    0xaabbccdd//the initialized variables appear
+			Stack Entry [2] [0x00ffefc0]:    0x0000afb0
+			Stack Entry [3] [0x00ffefbc]:    0x0000afb0
+			Stack Entry [4] [0x00ffefb8]:    0x00ffefbc
+			Stack Entry [5] [0x00ffefb4]:    0x00000004
+			Stack Entry [6] [0x00ffefb0]:    0x0000b878
+
+Enabling Compiler Optimization: CFLAGS	= -march=i586 -fno-builtin -c -Wall -O ${DEFS} ${INCLUDE}
+Output before disbaling: Function [printtos()]
+
+			 Before          [0x00ffefc0]:    0x00009228
+			 After           [0x00ffefb8]:    0x00ffefec
+			 Stack Entry [1] [0x00ffefb4]:    0x00000000
+			 Stack Entry [2] [0x00ffefb0]:    0x00000000
+			 Stack Entry [3] [0x00ffefac]:    0x00000000
+ 			 Stack Entry [4] [0x00ffefa8]:    0x00ffefac
+			 Stack Entry [5] [0x00ffefa4]:    0x00000004
+			 Stack Entry [6] [0x00ffefa0]:    0x000098bc
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Anish Ramasekar
+aramase@ncsu.edu
+#200060849
+	
